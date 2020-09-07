@@ -2,10 +2,15 @@ use std::fs;
 use std::env;
 
 fn main() {
-    // get directory argument from the input
-    let dir = env::args().nth(1).expect("Missing directory argument");
+    // get directory argument from the input - if none provided, current dir
+    let mut dir = env::args().nth(1);
+    let dir_string: String;
+    match &dir {
+        Some(d) => dir_string = dir.unwrap(),
+        None => dir_string = ".".to_string()
+    }
     // collect the directory entries as ReadDir objects
-    let dir_entries = fs::read_dir(dir).expect("Could not read directory.");
+    let dir_entries = fs::read_dir(dir_string).expect("Could not read directory.");
 
     // test
     default_display(dir_entries, false);
