@@ -1,14 +1,29 @@
 use std::fs;
-use std::env;
+use structopt::StructOpt;
 
 fn main() {
-    // get directory argument from the input
-    let dir = env::args().nth(1).expect("Missing directory argument");
+    // get args
+    let args = ArgumentData::from_args();
+    let path_string = args.path.as_path().display().to_string();
+
     // collect the directory entries as ReadDir objects
-    let dir_entries = fs::read_dir(dir).expect("Could not read directory.");
+    let dir_entries = fs::read_dir(path_string).expect("Could not read directory.");
 
     // test
     default_display(dir_entries, false);
+}
+
+// Command line argument structs
+#[derive(StructOpt, Debug)]
+#[structopt(name = "ost")]
+struct ArgumentData {
+    /// Files to process
+    #[structopt(parse(from_os_str), default_value=".")]
+    path: std::path::PathBuf,
+
+    /// Show hidden (dot) files
+    #[structopt(short="a")]
+    hidden: bool,    
 }
 
 /// The default display that displays each entry of the directory line by line non-recursively.
