@@ -1,4 +1,5 @@
 use std::fs;
+use fs::DirEntry;
 use structopt::StructOpt;
 
 fn main() {
@@ -6,11 +7,7 @@ fn main() {
     let args = ArgumentData::from_args();
     let path_string = args.path.as_path().display().to_string();
 
-    // collect the directory entries as ReadDir objects
-    let dir_entries = fs::read_dir(path_string).expect("Could not read directory.");
-
-    // test
-    default_display(dir_entries, false);
+    let entries = collect_dir(path_string);
 }
 
 // Command line argument structs
@@ -23,23 +20,32 @@ struct ArgumentData {
 
     /// Show hidden (dot) files
     #[structopt(short="a")]
-    hidden: bool,    
+    hidden: bool,   
+    
+    /// Show extra information
+    #[structopt(short="l")]
+    long: bool,
+
+    /// No sort
+    #[structopt(short="f")]
+    no_sort: bool
+}
+
+/// Collect entries from a directory indicated by a string and return a vector of DirEntry
+fn collect_dir(path: String) -> Vec<DirEntry> {
+    // collect the directory entries as ReadDir objects and then as DirEntry into a vec
+    let reader = fs::read_dir(path).expect("Could not read directory.");
+    let mut dir_entries: Vec<DirEntry> = Vec::new();
+    for entry in reader {
+        // unwrap entry to a result
+        let entry_result = entry.expect("Cannot read entry.");
+        dir_entries.push(entry_result);
+    }
+
+    return dir_entries;
 }
 
 /// The default display that displays each entry of the directory line by line non-recursively.
-fn default_display(dir: fs::ReadDir, show_hidden: bool) {
-    for entry in dir {
-        // unwrap entry to a result
-        let entry_result = entry.expect("Cannot read entry.");
-        let file_str = entry_result.file_name().to_str().unwrap().to_string();
-
-        // determine if it should be shown if a dotfile
-        if show_hidden {
-            println!("{:?}", &file_str);
-        } else {
-            if !&file_str.starts_with('.') {
-                println!("{:?}", file_str);
-            }
-        }
-    }
+fn default_display(entries: Vec<DirEntry>, show_hidden: bool) {
+    
 }
