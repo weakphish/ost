@@ -7,7 +7,14 @@ fn main() {
     let args = ArgumentData::from_args();
     let path_string = args.path.as_path().display().to_string();
 
-    let entries = collect_dir(path_string);
+    // collect entries into a DirEntry vector and sort if applicable
+    let mut entries = collect_dir(path_string);
+    if !args.no_sort {
+        entries.sort_by(|a, b| a.path().cmp(&b.path()));
+    }
+
+    // test
+    default_display(entries, args.hidden)
 }
 
 // Command line argument structs
@@ -47,5 +54,15 @@ fn collect_dir(path: String) -> Vec<DirEntry> {
 
 /// The default display that displays each entry of the directory line by line non-recursively.
 fn default_display(entries: Vec<DirEntry>, show_hidden: bool) {
-    
+    for entry in entries {
+        let entry_string: String = entry.path().file_name().unwrap().to_string_lossy().into_owned();
+        
+        if show_hidden {
+            println!("{}", entry_string);
+        } else {
+            if !entry_string.starts_with(".") {
+                println!("{}", entry_string);
+            }
+        }
+    }
 }
