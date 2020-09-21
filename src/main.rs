@@ -13,8 +13,8 @@ fn main() {
         entries.sort_by(|a, b| a.path().cmp(&b.path()));
     }
 
-    // test
-    default_display(entries, args.hidden)
+    // Display output
+    display(entries, args.hidden, args.long)
 }
 
 // Command line argument structs
@@ -53,16 +53,20 @@ fn collect_dir(path: String) -> Vec<DirEntry> {
 }
 
 /// The default display that displays each entry of the directory line by line non-recursively.
-fn default_display(entries: Vec<DirEntry>, show_hidden: bool) {
-    for entry in entries {
-        let entry_string: String = entry.path().file_name().unwrap().to_string_lossy().into_owned();
+fn display(entries: Vec<DirEntry>, show_hidden: bool, long: bool) {
+    if !long {
+        for entry in entries {
+            let entry_string: String = entry.path().file_name().unwrap().to_string_lossy().into_owned();
         
-        if show_hidden {
-            println!("{}", entry_string);
-        } else {
-            if !entry_string.starts_with(".") {
+            if show_hidden {
                 println!("{}", entry_string);
+            } else {
+                if !entry_string.starts_with(".") {
+                    println!("{}", entry_string);
+                }
             }
         }
+    } else {
+        // display long
     }
 }
