@@ -1,6 +1,7 @@
 use std::fs;
 use fs::DirEntry;
 use structopt::StructOpt;
+use std::os::unix::fs::PermissionsExt;
 
 fn main() {
     // get args
@@ -54,19 +55,15 @@ fn collect_dir(path: String) -> Vec<DirEntry> {
 
 /// The default display that displays each entry of the directory line by line non-recursively.
 fn display(entries: Vec<DirEntry>, show_hidden: bool, long: bool) {
-    if !long {
-        for entry in entries {
-            let entry_string: String = entry.path().file_name().unwrap().to_string_lossy().into_owned();
-        
-            if show_hidden {
-                println!("{}", entry_string);
-            } else {
-                if !entry_string.starts_with(".") {
-                    println!("{}", entry_string);
-                }
-            }
+    for entry in entries {
+        let entry_string: String = entry.path().file_name().unwrap().to_string_lossy().into_owned();
+        let entry_metadata = entry.metadata().unwrap();
+
+        if long {
+            //TODO: figure out how to pretty print read permissions
+            println!("{:o}", entry_metadata.permissions().mode());
+        } else {
+            // do things
         }
-    } else {
-        // display long
     }
 }
